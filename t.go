@@ -37,7 +37,7 @@ func main() {
 	summmary := GetDataSummary(data)
 
 	// Create test xlsx file
-	WriteListToXlxs()
+	WriteListToXlxs("test.xlsx")
 
 	fmt.Println(summmary)
 }
@@ -108,7 +108,7 @@ func GetUserPath() string {
 }
 
 // WriteListToXlxs : create a xlxs file from a list
-func WriteListToXlxs() {
+func WriteListToXlxs(outputPath string) {
 	var file *xlsx.File
 	var sheet *xlsx.Sheet
 	var row *xlsx.Row
@@ -123,7 +123,7 @@ func WriteListToXlxs() {
 	row = sheet.AddRow()
 	cell = row.AddCell()
 	cell.Value = "I am a cell!"
-	err = file.Save("test.xlsx") // TODO: file name = csv file name
+	err = file.Save(outputPath) // TODO: file name = csv file name
 	if err != nil {
 		log.Fatal(err.Error())
 	}
