@@ -11,6 +11,8 @@ import (
 	"os/user"
 	"strconv"
 	s "strings"
+
+	"github.com/tealeg/xlsx"
 )
 
 func main() {
@@ -33,6 +35,9 @@ func main() {
 
 	// Get data summarized
 	summmary := GetDataSummary(data)
+
+	// Create test xlsx file
+	WriteListToXlxs()
 
 	fmt.Println(summmary)
 }
@@ -100,4 +105,26 @@ func GetUserPath() string {
 		log.Fatal(err)
 	}
 	return usr.HomeDir
+}
+
+// WriteListToXlxs : create a xlxs file from a list
+func WriteListToXlxs() {
+	var file *xlsx.File
+	var sheet *xlsx.Sheet
+	var row *xlsx.Row
+	var cell *xlsx.Cell
+	var err error
+
+	file = xlsx.NewFile()
+	sheet, err = file.AddSheet("Sheet1") // TODO: sheet name = csv file name
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	row = sheet.AddRow()
+	cell = row.AddCell()
+	cell.Value = "I am a cell!"
+	err = file.Save("test.xlsx") // TODO: file name = csv file name
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 }
