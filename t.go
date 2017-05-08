@@ -34,12 +34,12 @@ func main() {
 	data := dataWithHeader[1:]
 
 	// Get data summarized
-	summmary := GetDataSummary(data)
+	summary := GetDataSummary(data)
+
+	// TODO get week date to add it to excel sheet
 
 	// Create test xlsx file
-	WriteListToXlxs("test.xlsx")
-
-	fmt.Println(summmary)
+	WriteListToXlxs("hi", summary, "test.xlsx")
 }
 
 // DataSummaryRecord : struct to store every record value
@@ -108,23 +108,19 @@ func GetUserPath() string {
 }
 
 // WriteListToXlxs : create a xlxs file from a list
-func WriteListToXlxs(outputPath string) {
-	var file *xlsx.File
-	var sheet *xlsx.Sheet
-	var row *xlsx.Row
-	var cell *xlsx.Cell
-	var err error
+func WriteListToXlxs(sheetName string, sheetData []DataSummaryRecord, outputPath string) {
 
-	file = xlsx.NewFile()
-	sheet, err = file.AddSheet("Sheet1") // TODO: sheet name = csv file name
+	file := xlsx.NewFile()
+	sheet, err := file.AddSheet(sheetName) // TODO: sheet name = csv file name
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	row = sheet.AddRow()
-	cell = row.AddCell()
+	row := sheet.AddRow()
+	cell := row.AddCell()
 	cell.Value = "I am a cell!"
 	err = file.Save(outputPath) // TODO: file name = csv file name
 	if err != nil {
 		log.Fatal(err.Error())
 	}
+	fmt.Println(sheetData)
 }
