@@ -11,6 +11,8 @@ import (
 	"strconv"
 	s "strings"
 
+	"fmt"
+
 	"github.com/tealeg/xlsx"
 )
 
@@ -38,7 +40,7 @@ func main() {
 	// TODO get week date to add it to excel sheet
 
 	// Create test xlsx file
-	WriteListToXlxs("hi", summary, "test.xlsx")
+	WriteListToXlxs("Week date goes here", summary, "test.xlsx")
 }
 
 // DataSummaryRecord : struct to store every record value
@@ -50,8 +52,9 @@ type DataSummaryRecord struct {
 // GetDataSummary : return a table with duplicated records united
 func GetDataSummary(data [][]string) []DataSummaryRecord {
 	// Declare an empty slice to collect parsed records
-	var dataSummary []DataSummaryRecord
+	var dataSummary, dataTrimmed []DataSummaryRecord
 
+	fmt.Println("\n\nTRIMMED")
 	for i := range data {
 		recordStruct := DataSummaryRecord{}
 		recordStruct.project = data[i][3]
@@ -59,7 +62,30 @@ func GetDataSummary(data [][]string) []DataSummaryRecord {
 		recordStruct.duration = ParseDuration(data[i][11])
 
 		// Append parsed record to the slice
-		dataSummary = append(dataSummary, recordStruct)
+		dataTrimmed = append(dataTrimmed, recordStruct)
+		fmt.Println(recordStruct)
+	}
+
+	for i := range dataTrimmed {
+		recordStruct := DataSummaryRecord{}
+		activityFound := false
+		// Check if this activity is been already added to dataSummary
+		for ii := range dataSummary {
+			if dataSummary[ii].project == dataTrimmed[i].project && dataSummary[ii].activity == dataTrimmed[i].activity {
+				dataSummary[ii].duration = dataSummary[ii].duration + dataTrimmed[i].duration
+				activityFound = true
+				break
+			}
+			//activityFound = false
+		}
+		if activityFound == false {
+			recordStruct.project = dataTrimmed[i].project
+			recordStruct.activity = dataTrimmed[i].activity
+			recordStruct.duration = dataTrimmed[i].duration
+
+			dataSummary = append(dataSummary, recordStruct)
+		}
+
 	}
 	return dataSummary
 }
