@@ -5,7 +5,6 @@ package main
 import (
 	"bufio"
 	"encoding/csv"
-	"fmt"
 	"log"
 	"os"
 	"os/user"
@@ -110,17 +109,30 @@ func GetUserPath() string {
 // WriteListToXlxs : create a xlxs file from a list
 func WriteListToXlxs(sheetName string, sheetData []DataSummaryRecord, outputPath string) {
 
+	// Create file object
 	file := xlsx.NewFile()
+
+	// Add sheet
 	sheet, err := file.AddSheet(sheetName) // TODO: sheet name = csv file name
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	row := sheet.AddRow()
-	cell := row.AddCell()
-	cell.Value = "I am a cell!"
+
+	// Add header to sheet
+	sheet.Cell(0, 0).Value = "PROYECT"
+	sheet.Cell(0, 1).Value = "ACTIVITY"
+	sheet.Cell(0, 2).Value = "DURATION"
+	// Populate sheet
+	for i := range sheetData {
+		sheet.Cell((1 + i), 0).Value = sheetData[i].project
+		sheet.Cell((1 + i), 1).Value = sheetData[i].activity
+		durationString := strconv.FormatFloat(sheetData[i].duration, 'f', -1, 64)
+		sheet.Cell((1 + i), 2).Value = durationString
+	}
+
+	// Create excel file
 	err = file.Save(outputPath) // TODO: file name = csv file name
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	fmt.Println(sheetData)
 }
