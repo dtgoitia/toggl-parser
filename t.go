@@ -12,6 +12,7 @@ import (
 	s "strings"
 
 	"fmt"
+	"time"
 
 	"github.com/tealeg/xlsx"
 )
@@ -45,8 +46,10 @@ func main() {
 
 // DataSummaryRecord : struct to store every record value
 type DataSummaryRecord struct {
-	project, activity string
-	duration          float64
+	project  string
+	activity string
+	date     time.Time
+	duration float64
 }
 
 // GetDataSummary : return a table with duplicated records united
@@ -54,36 +57,38 @@ func GetDataSummary(data [][]string) []DataSummaryRecord {
 	// Declare an empty slice to collect parsed records
 	var dataSummary, dataTrimmed []DataSummaryRecord
 
-	fmt.Println("\n\nTRIMMED")
+	fmt.Println("Trimming data...")
 	for i := range data {
-		recordStruct := DataSummaryRecord{}
-		recordStruct.project = data[i][3]
-		recordStruct.activity = data[i][5]
-		recordStruct.duration = ParseDuration(data[i][11])
+		record := DataSummaryRecord{}
+		record.project = data[i][3]
+		record.activity = data[i][5]
+		t, _ := time.Parse("2006-01-02", data[i][7])
+		record.date = t
+		record.duration = ParseDuration(data[i][11])
 
 		// Append parsed record to the slice
-		dataTrimmed = append(dataTrimmed, recordStruct)
-		fmt.Println(recordStruct)
+		dataTrimmed = append(dataTrimmed, record)
 	}
 
+	fmt.Println("Summarising data... ")
 	for i := range dataTrimmed {
-		recordStruct := DataSummaryRecord{}
+		record := DataSummaryRecord{}
 		activityFound := false
 		// Check if this activity is been already added to dataSummary
 		for ii := range dataSummary {
-			if dataSummary[ii].project == dataTrimmed[i].project && dataSummary[ii].activity == dataTrimmed[i].activity {
+			if dataSummary[ii].project == dataTrimmed[i].project && dataSummary[ii].activity == dataTrimmed[i].activity && dataSummary[ii].date == dataTrimmed[i].date {
 				dataSummary[ii].duration = dataSummary[ii].duration + dataTrimmed[i].duration
 				activityFound = true
 				break
 			}
-			//activityFound = false
 		}
 		if activityFound == false {
-			recordStruct.project = dataTrimmed[i].project
-			recordStruct.activity = dataTrimmed[i].activity
-			recordStruct.duration = dataTrimmed[i].duration
+			record.project = dataTrimmed[i].project
+			record.activity = dataTrimmed[i].activity
+			record.duration = dataTrimmed[i].duration
+			record.date = dataTrimmed[i].date
 
-			dataSummary = append(dataSummary, recordStruct)
+			dataSummary = append(dataSummary, record)
 		}
 
 	}
@@ -147,13 +152,18 @@ func WriteListToXlxs(sheetName string, sheetData []DataSummaryRecord, outputPath
 	// Add header to sheet
 	sheet.Cell(0, 0).Value = "PROYECT"
 	sheet.Cell(0, 1).Value = "ACTIVITY"
-	sheet.Cell(0, 2).Value = "DURATION"
+	sheet.Cell(0, 2).Value = "DATE"
+	sheet.Cell(0, 3).Value = "DURATION"
 	// Populate sheet
 	for i := range sheetData {
 		sheet.Cell((1 + i), 0).Value = sheetData[i].project
 		sheet.Cell((1 + i), 1).Value = sheetData[i].activity
+
+		dateString := sheetData[i].date.Format("2006.01.02")
+		sheet.Cell((1 + i), 2).Value = dateString
+
 		durationString := strconv.FormatFloat(sheetData[i].duration, 'f', -1, 64)
-		sheet.Cell((1 + i), 2).Value = durationString
+		sheet.Cell((1 + i), 3).Value = durationString
 	}
 
 	// Create excel file
