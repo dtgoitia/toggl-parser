@@ -13,7 +13,6 @@ import (
 	s "strings"
 	"text/tabwriter"
 
-	"flag"
 	"fmt"
 	"time"
 
@@ -21,12 +20,6 @@ import (
 )
 
 func main() {
-	// Store argument values passed on the command-line
-	//inputPath := os.Args[1]
-	// outputPath := os.Args[2]
-	flagVerbose := flag.Bool("v", true, "print what exported")
-	fmt.Println(*flagVerbose)
-
 	// Load the file
 	file, err := os.Open(os.Args[1])
 	if err != nil {
