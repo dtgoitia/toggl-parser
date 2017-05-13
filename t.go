@@ -1,4 +1,4 @@
-// go run t.go "inputFile.csv"
+// go run t.go "inputFile.csv" "test.xlsx"
 
 package main
 
@@ -20,11 +20,11 @@ import (
 
 func main() {
 	// Store argument values passed on the command-line
-	inputPath := os.Args[1]
+	//inputPath := os.Args[1]
 	// outputPath := os.Args[2]
 
 	// Load the file
-	file, err := os.Open(inputPath)
+	file, err := os.Open(os.Args[1])
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -40,7 +40,7 @@ func main() {
 	summary := GetDataSummary(data)
 
 	// Create test xlsx file
-	WriteListToXlxs("Week date goes here", summary, "test.xlsx")
+	WriteListToXlxs("Week date goes here", summary, os.Args[2])
 
 	GetDataToExport(summary)
 }
@@ -105,18 +105,6 @@ func GetDataSummary(data [][]string) []DataSummaryRecord {
 
 // GetDataToExport : return a table with information sorted ready to export
 func GetDataToExport(data []DataSummaryRecord) []DataToExport {
-	w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', tabwriter.Debug)
-	for i := range data {
-		// Combine all data in a single string
-		var s string
-		s = data[i].project + "\t" + data[i].activity + "\t"
-		s = s + data[i].date.Format("2006.01.02") + "\t"
-		s = s + data[i].date.Weekday().String() + "\t"
-		s = s + strconv.FormatFloat(data[i].duration, 'f', -1, 64)
-		fmt.Fprintln(w, s)
-	}
-	w.Flush()
-	fmt.Println("---")
 	var dataExport []DataToExport
 	for i := range data {
 		x := DataToExport{}
@@ -197,8 +185,7 @@ func GetDataToExport(data []DataSummaryRecord) []DataToExport {
 			dataExport = append(dataExport, x)
 		}
 	}
-
-	w = tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', tabwriter.Debug)
+	w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', tabwriter.Debug)
 	for i := range dataExport {
 		// Combine all data in a single string
 		var s string
