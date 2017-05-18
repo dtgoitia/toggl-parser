@@ -34,12 +34,17 @@ func main() {
 	data := dataWithHeader[1:]
 
 	// Get data summarized
-	summary := GetDataSummary(data)
+	summaryDataSummaryRecord := GetDataSummary(data)
+	fmt.Println("summaryDataSummaryRecord")
+	fmt.Println(summaryDataSummaryRecord)
+	summaryDataToExport := GetDataToExport(summaryDataSummaryRecord)
+	fmt.Println("summaryDataToExport")
+	fmt.Println(summaryDataToExport)
 
 	// Create test xlsx file
-	WriteListToXlxs("Week date goes here", summary, os.Args[2])
+	//WriteDataSummaryRecordsToXlxs("Week date goes here", summaryDataSummaryRecord, os.Args[2])
+	WriteDataToExportsToXlxs("Week date goes here", summaryDataToExport, os.Args[2])
 
-	GetDataToExport(summary)
 }
 
 // DataSummaryRecord : struct to store every record value
@@ -199,8 +204,7 @@ func GetDataToExport(data []DataSummaryRecord) []DataToExport {
 	}
 	w.Flush()
 
-	var ret []DataToExport
-	return ret
+	return dataExport
 }
 
 // ParseDuration : return a float64 with the number of hours rounded to the nearest 0.25h
@@ -245,8 +249,8 @@ func GetUserPath() string {
 	return usr.HomeDir
 }
 
-// WriteListToXlxs : create a xlxs file from a list
-func WriteListToXlxs(sheetName string, sheetData []DataSummaryRecord, outputPath string) {
+// WriteDataSummaryRecordsToXlxs : create a xlxs file from a list
+func WriteDataSummaryRecordsToXlxs(sheetName string, sheetData []DataSummaryRecord, outputPath string) {
 
 	// Create file object
 	file := xlsx.NewFile()
@@ -272,6 +276,44 @@ func WriteListToXlxs(sheetName string, sheetData []DataSummaryRecord, outputPath
 
 		durationString := strconv.FormatFloat(sheetData[i].duration, 'f', -1, 64)
 		sheet.Cell((1 + i), 3).Value = durationString
+	}
+
+	// Create excel file
+	err = file.Save(outputPath) // TODO: file name = csv file name
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+}
+
+// WriteDataToExportsToXlxs : create a xlxs file from a list
+func WriteDataToExportsToXlxs(sheetName string, sheetData []DataToExport, outputPath string) {
+
+	// Create file object
+	file := xlsx.NewFile()
+
+	// Add sheet
+	sheet, err := file.AddSheet(sheetName) // TODO: sheet name = csv file name
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	// Add header to sheet
+	sheet.Cell(0, 0).Value = "PROYECT"
+	sheet.Cell(0, 1).Value = "ACTIVITY"
+	sheet.Cell(0, 2).Value = "DATE"
+	sheet.Cell(0, 3).Value = "DURATION"
+	// Populate sheet
+	for i := range sheetData {
+		sheet.Cell((1 + i), 0).Value = sheetData[i].project
+		sheet.Cell((1 + i), 1).Value = sheetData[i].activity
+		sheet.Cell((1 + i), 2).Value = strconv.FormatFloat(sheetData[i].mondayDuration, 'f', -1, 64)
+		sheet.Cell((1 + i), 3).Value = strconv.FormatFloat(sheetData[i].tuesdayDuration, 'f', -1, 64)
+		sheet.Cell((1 + i), 4).Value = strconv.FormatFloat(sheetData[i].wednesdayDuration, 'f', -1, 64)
+		sheet.Cell((1 + i), 5).Value = strconv.FormatFloat(sheetData[i].thursdayDuration, 'f', -1, 64)
+		sheet.Cell((1 + i), 6).Value = strconv.FormatFloat(sheetData[i].fridayDuration, 'f', -1, 64)
+		sheet.Cell((1 + i), 7).Value = strconv.FormatFloat(sheetData[i].saturdayDuration, 'f', -1, 64)
+		fmt.Println("for i := range sheetData works")
+		//fmt.Println(sheetData[i])
 	}
 
 	// Create excel file
