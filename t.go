@@ -20,8 +20,34 @@ import (
 )
 
 func main() {
+	// Check flags and arguments
+	var arg1, arg2 string
+	verbose := false
+
+	nArgs := len(os.Args)
+	fmt.Println(os.Args[0])
+	switch nArgs {
+	case 1:
+		log.Fatal("\nYou forgot the arguments my friend!")
+	case 2:
+		log.Fatal("\nYou only gave me 1 argument! I still need another one :)")
+		// Set the output file name the same as the input file, just change the extension
+	case 3:
+		// Check if argument 2 is -v or a filename
+		// If -v, set the output file name the same as the input file, just change the extension, and print on screen table
+		// If filename, set flag string to output filename and don't print
+		arg1 = os.Args[1]
+		arg2 = os.Args[2]
+	case 4:
+		arg1 = os.Args[1]
+		arg2 = os.Args[2]
+		verbose = true
+	default:
+		log.Fatal("\nToo many arguments!")
+	}
+
 	// Load the file
-	file, err := os.Open(os.Args[1])
+	file, err := os.Open(arg1)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -42,11 +68,15 @@ func main() {
 	// Joining duplicated activity duration
 	fmt.Println("Joining duplicated activity duration...")
 	summaryDataToExport := GetDataToExport(summaryDataSummaryRecord)
-	PrintDataToExport(summaryDataToExport)
+
+	// If "-v" flag if present print table before exporting
+	if verbose == true {
+		PrintDataToExport(summaryDataToExport)
+	}
 
 	// Create test xlsx file
 	fmt.Println("Writing data to", os.Args[2], "...")
-	WriteDataToExportsToXlxs("Week date goes here", summaryDataToExport, os.Args[2])
+	WriteDataToExportsToXlxs("Week date goes here", summaryDataToExport, arg2)
 
 }
 
