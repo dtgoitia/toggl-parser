@@ -27,22 +27,25 @@ func main() {
 	}
 
 	// Create a new reader
+	fmt.Println("Openning CSV file...")
 	reader := csv.NewReader(bufio.NewReader(file))
 
-	// Get all data in the reader
+	// Extract CSV data
+	fmt.Println("Extracting CSV file data...")
 	dataWithHeader, err := reader.ReadAll()
 	data := dataWithHeader[1:]
 
-	// Get data summarized
+	// Summarize data
+	fmt.Println("Summarising data...")
 	summaryDataSummaryRecord := GetDataSummary(data)
-	fmt.Println("summaryDataSummaryRecord")
-	fmt.Println(summaryDataSummaryRecord)
+
+	// Joining duplicated activity duration
+	fmt.Println("Joining duplicated activity duration...")
 	summaryDataToExport := GetDataToExport(summaryDataSummaryRecord)
-	fmt.Println("summaryDataToExport")
-	fmt.Println(summaryDataToExport)
+	PrintDataToExport(summaryDataToExport)
 
 	// Create test xlsx file
-	//WriteDataSummaryRecordsToXlxs("Week date goes here", summaryDataSummaryRecord, os.Args[2])
+	fmt.Println("Writing data to", os.Args[2], "...")
 	WriteDataToExportsToXlxs("Week date goes here", summaryDataToExport, os.Args[2])
 
 }
@@ -187,24 +190,28 @@ func GetDataToExport(data []DataSummaryRecord) []DataToExport {
 			dataExport = append(dataExport, x)
 		}
 	}
-	w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', tabwriter.Debug)
-	for i := range dataExport {
-		// Combine all data in a single string
-		var s string
-		s = dataExport[i].project + "\t" + dataExport[i].activity + "\t"
-		s = s + strconv.FormatFloat(dataExport[i].mondayDuration, 'f', -1, 64) + "\t"
-		s = s + strconv.FormatFloat(dataExport[i].tuesdayDuration, 'f', -1, 64) + "\t"
-		s = s + strconv.FormatFloat(dataExport[i].wednesdayDuration, 'f', -1, 64) + "\t"
-		s = s + strconv.FormatFloat(dataExport[i].thursdayDuration, 'f', -1, 64) + "\t"
-		s = s + strconv.FormatFloat(dataExport[i].fridayDuration, 'f', -1, 64) + "\t"
-		s = s + strconv.FormatFloat(dataExport[i].saturdayDuration, 'f', -1, 64) + "\t"
-		s = s + strconv.FormatFloat(dataExport[i].sundayDuration, 'f', -1, 64)
+	return dataExport
+}
 
+// PrintDataToExport : print data table
+func PrintDataToExport(data []DataToExport) {
+	w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', tabwriter.Debug)
+	for i := range data {
+		// Concatenata all data in a single string
+		var s string
+		s = data[i].project + "\t" + data[i].activity + "\t"
+		s = s + strconv.FormatFloat(data[i].mondayDuration, 'f', -1, 64) + "\t"
+		s = s + strconv.FormatFloat(data[i].tuesdayDuration, 'f', -1, 64) + "\t"
+		s = s + strconv.FormatFloat(data[i].wednesdayDuration, 'f', -1, 64) + "\t"
+		s = s + strconv.FormatFloat(data[i].thursdayDuration, 'f', -1, 64) + "\t"
+		s = s + strconv.FormatFloat(data[i].fridayDuration, 'f', -1, 64) + "\t"
+		s = s + strconv.FormatFloat(data[i].saturdayDuration, 'f', -1, 64) + "\t"
+		s = s + strconv.FormatFloat(data[i].sundayDuration, 'f', -1, 64)
+
+		// Print contenated string
 		fmt.Fprintln(w, s)
 	}
 	w.Flush()
-
-	return dataExport
 }
 
 // ParseDuration : return a float64 with the number of hours rounded to the nearest 0.25h
@@ -247,42 +254,6 @@ func GetUserPath() string {
 		log.Fatal(err)
 	}
 	return usr.HomeDir
-}
-
-// WriteDataSummaryRecordsToXlxs : create a xlxs file from a list
-func WriteDataSummaryRecordsToXlxs(sheetName string, sheetData []DataSummaryRecord, outputPath string) {
-
-	// Create file object
-	file := xlsx.NewFile()
-
-	// Add sheet
-	sheet, err := file.AddSheet(sheetName) // TODO: sheet name = csv file name
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-
-	// Add header to sheet
-	sheet.Cell(0, 0).Value = "PROYECT"
-	sheet.Cell(0, 1).Value = "ACTIVITY"
-	sheet.Cell(0, 2).Value = "DATE"
-	sheet.Cell(0, 3).Value = "DURATION"
-	// Populate sheet
-	for i := range sheetData {
-		sheet.Cell((1 + i), 0).Value = sheetData[i].project
-		sheet.Cell((1 + i), 1).Value = sheetData[i].activity
-
-		dateString := sheetData[i].date.Format("2006.01.02")
-		sheet.Cell((1 + i), 2).Value = dateString
-
-		durationString := strconv.FormatFloat(sheetData[i].duration, 'f', -1, 64)
-		sheet.Cell((1 + i), 3).Value = durationString
-	}
-
-	// Create excel file
-	err = file.Save(outputPath) // TODO: file name = csv file name
-	if err != nil {
-		log.Fatal(err.Error())
-	}
 }
 
 // WriteDataToExportsToXlxs : create a xlxs file from a list
