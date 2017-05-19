@@ -301,12 +301,12 @@ func WriteDataToExportsToXlxs(sheetName string, sheetData []DataToExport, output
 	// Add header to sheet
 	sheet.Cell(0, 0).Value = "PROYECT"
 	sheet.Cell(0, 1).Value = "ACTIVITY"
-	sheet.Cell(0, 2).Value = "DATE"
-	sheet.Cell(0, 3).Value = "MON"
-	sheet.Cell(0, 4).Value = "TUE"
-	sheet.Cell(0, 5).Value = "WED"
-	sheet.Cell(0, 6).Value = "THU"
-	sheet.Cell(0, 7).Value = "FRI"
+	sheet.Cell(0, 2).Value = "MON"
+	sheet.Cell(0, 3).Value = "TUE"
+	sheet.Cell(0, 4).Value = "WED"
+	sheet.Cell(0, 5).Value = "THU"
+	sheet.Cell(0, 6).Value = "FRI"
+	sheet.Cell(0, 7).Value = "SAT/SUN"
 
 	// Populate sheet
 	for i := range sheetData {
@@ -317,7 +317,7 @@ func WriteDataToExportsToXlxs(sheetName string, sheetData []DataToExport, output
 		sheet.Cell((1 + i), 4).Value = strconv.FormatFloat(sheetData[i].wednesdayDuration, 'f', -1, 64)
 		sheet.Cell((1 + i), 5).Value = strconv.FormatFloat(sheetData[i].thursdayDuration, 'f', -1, 64)
 		sheet.Cell((1 + i), 6).Value = strconv.FormatFloat(sheetData[i].fridayDuration, 'f', -1, 64)
-		sheet.Cell((1 + i), 7).Value = strconv.FormatFloat(sheetData[i].saturdayDuration, 'f', -1, 64)
+		sheet.Cell((1 + i), 7).Value = strconv.FormatFloat(sheetData[i].saturdayDuration+sheetData[i].sundayDuration, 'f', -1, 64)
 		//fmt.Println(sheetData[i])
 	}
 
