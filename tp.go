@@ -1,5 +1,9 @@
-// go run t.go "inputFile.csv" "test.xlsx"
-// go run t.go "inputFile.csv" "test.xlsx" -v
+/*
+go run tp.go "04-17.csv"
+go run tp.go "04-17.csv" "test.xlsx"
+go run tp.go "04-17.csv" -v
+go run tp.go "04-17.csv" "test.xlsx" -v
+-*/
 
 package main
 
@@ -9,6 +13,8 @@ import (
 	"log"
 	"os"
 	"os/user"
+	"path/filepath"
+	"reflect"
 	"strconv"
 	s "strings"
 	"text/tabwriter"
@@ -22,22 +28,33 @@ import (
 func main() {
 	// Check flags and arguments
 	var arg1, arg2 string
-	verbose := false
 
+	verbose := false
 	nArgs := len(os.Args)
-	fmt.Println(os.Args[0])
+
 	switch nArgs {
+	// No arguemnts: ERROR
 	case 1:
 		log.Fatal("\nYou forgot the arguments my friend!")
+	// Single argument: export to same filename, no verbose
 	case 2:
-		log.Fatal("\nYou only gave me 1 argument! I still need another one :)")
-		// Set the output file name the same as the input file, just change the extension
-	case 3:
-		// Check if argument 2 is -v or a filename
-		// If -v, set the output file name the same as the input file, just change the extension, and print on screen table
-		// If filename, set flag string to output filename and don't print
 		arg1 = os.Args[1]
-		arg2 = os.Args[2]
+		arg2 = GetOutputFilenameFromInput(arg1)
+	// 2 arguments: check if export filename or verbose flag provided
+	case 3:
+		if reflect.TypeOf(os.Args[2]) == reflect.TypeOf("a") {
+			if os.Args[2] == "-v" {
+				arg1 = os.Args[1]
+				arg2 = GetOutputFilenameFromInput(arg1)
+				verbose = true
+			} else {
+				arg1 = os.Args[1]
+				arg2 = os.Args[2]
+			}
+		} else {
+			log.Fatal("\nProvided arguments don't make sense... :S")
+		}
+	// 3 arguments: export to provided filename, verbose
 	case 4:
 		arg1 = os.Args[1]
 		arg2 = os.Args[2]
@@ -53,7 +70,7 @@ func main() {
 	}
 
 	// Create a new reader
-	fmt.Println("Openning CSV file...")
+	fmt.Println("Opening CSV file...")
 	reader := csv.NewReader(bufio.NewReader(file))
 
 	// Extract CSV data
@@ -75,7 +92,7 @@ func main() {
 	}
 
 	// Create test xlsx file
-	fmt.Println("Writing data to", os.Args[2], "...")
+	fmt.Println("Writing data to", arg2, "...")
 	WriteDataToExportsToXlxs("Week date goes here", summaryDataToExport, arg2)
 
 }
@@ -326,4 +343,12 @@ func WriteDataToExportsToXlxs(sheetName string, sheetData []DataToExport, output
 	if err != nil {
 		log.Fatal(err.Error())
 	}
+}
+
+// GetOutputFilenameFromInput : return an output file name based on the input file name
+func GetOutputFilenameFromInput(inputFilename string) string {
+	var filename = inputFilename
+	var extension = filepath.Ext(filename)
+	var name = filename[0:len(filename)-len(extension)] + ".xlsx"
+	return name
 }
