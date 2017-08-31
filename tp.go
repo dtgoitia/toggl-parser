@@ -329,12 +329,12 @@ func WriteDataToExportsToXlxs(sheetName string, sheetData []DataToExport, output
 	for i := range sheetData {
 		sheet.Cell((1 + i), 0).Value = sheetData[i].project
 		sheet.Cell((1 + i), 1).Value = sheetData[i].activity
-		sheet.Cell((1 + i), 2).Value = strconv.FormatFloat(sheetData[i].mondayDuration, 'f', -1, 64)
-		sheet.Cell((1 + i), 3).Value = strconv.FormatFloat(sheetData[i].tuesdayDuration, 'f', -1, 64)
-		sheet.Cell((1 + i), 4).Value = strconv.FormatFloat(sheetData[i].wednesdayDuration, 'f', -1, 64)
-		sheet.Cell((1 + i), 5).Value = strconv.FormatFloat(sheetData[i].thursdayDuration, 'f', -1, 64)
-		sheet.Cell((1 + i), 6).Value = strconv.FormatFloat(sheetData[i].fridayDuration, 'f', -1, 64)
-		sheet.Cell((1 + i), 7).Value = strconv.FormatFloat(sheetData[i].saturdayDuration+sheetData[i].sundayDuration, 'f', -1, 64)
+		sheet.Cell((1+i), 2).SetFloatWithFormat(sheetData[i].mondayDuration, "0.00")
+		sheet.Cell((1+i), 3).SetFloatWithFormat(sheetData[i].tuesdayDuration, "0.00")
+		sheet.Cell((1+i), 4).SetFloatWithFormat(sheetData[i].wednesdayDuration, "0.00")
+		sheet.Cell((1+i), 5).SetFloatWithFormat(sheetData[i].thursdayDuration, "0.00")
+		sheet.Cell((1+i), 6).SetFloatWithFormat(sheetData[i].fridayDuration, "0.00")
+		sheet.Cell((1+i), 7).SetFloatWithFormat(sheetData[i].saturdayDuration+sheetData[i].sundayDuration, "0.00")
 		//fmt.Println(sheetData[i])
 	}
 
